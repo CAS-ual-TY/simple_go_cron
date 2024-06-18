@@ -199,44 +199,41 @@ func ParseCronEntries(s string) (CronEntries, error) {
 		}
 		cronEntries.Entries = append(cronEntries.Entries, entry)
 	}
+	for len(cronEntries.Entries) < 6 {
+		cronEntries.Entries = append(cronEntries.Entries, &CronEntryUniversal{})
+	}
 	return cronEntries, nil
 }
 
 func ParseCron(s string) (*Cron, error) {
-	parts := strings.Split(s, " ")
-	if len(parts) != 6 {
-		return nil, fmt.Errorf("Invalid cron: %s", s)
+	entries := make([]CronEntries, 0, 6)
+
+	if len(s) > 0 {
+		parts := strings.Split(s, " ")
+
+		if len(parts) > 6 {
+			return nil, fmt.Errorf("Invalid cron: %s", s)
+		}
+
+		for _, part := range parts {
+			entry, err := ParseCronEntries(part)
+			if err != nil {
+				return nil, err
+			}
+			entries = append(entries, entry)
+		}
 	}
-	seconds, err := ParseCronEntries(parts[0])
-	if err != nil {
-		return nil, err
+
+	for len(entries) < 6 {
+		entries = append(entries, CronEntries{Entries: []CronEntry{&CronEntryUniversal{}}})
 	}
-	minutes, err := ParseCronEntries(parts[1])
-	if err != nil {
-		return nil, err
-	}
-	hours, err := ParseCronEntries(parts[2])
-	if err != nil {
-		return nil, err
-	}
-	days, err := ParseCronEntries(parts[3])
-	if err != nil {
-		return nil, err
-	}
-	months, err := ParseCronEntries(parts[4])
-	if err != nil {
-		return nil, err
-	}
-	weekdays, err := ParseCronEntries(parts[5])
-	if err != nil {
-		return nil, err
-	}
+
 	return &Cron{
-		Seconds:  seconds,
-		Minutes:  minutes,
-		Hours:    hours,
-		Days:     days,
-		Months:   months,
-		Weekdays: weekdays,
+		Seconds:  entries[0],
+		Minutes:  entries[1],
+		Hours:    entries[2],
+		Days:     entries[3],
+		Months:   entries[4],
+		Weekdays: entries[5],
 	}, nil
 }
