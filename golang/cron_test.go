@@ -42,3 +42,14 @@ func TestOther(t *testing.T) {
 	test(false, "10,20 *", date, t)
 	test(false, "* * 22", date, t)
 }
+
+func TestSteps(t *testing.T) {
+	date := time.Date(2010, 12, 30, 23, 59, 30, 0, time.UTC)
+	test(true, "*/1", date, t)
+	test(true, "*/2", date, t)
+	test(true, "*/3", date, t)
+	test(false, "*/4", date, t)
+	test(true, "*/5", date, t)
+	test(true, "*/6", date, t)
+	test(true, "26-34/4", date, t)
+}

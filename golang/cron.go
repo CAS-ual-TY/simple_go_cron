@@ -149,7 +149,7 @@ func ParseCronEntry(s string) (CronEntry, error) {
 		if len(parts) != 2 {
 			return nil, &ErrInvalidCronEntry{s, "step"}
 		}
-		entry, err := ParseCronEntry(parts[1])
+		entry, err := ParseCronEntry(parts[0])
 		if err != nil {
 			return nil, err
 		}
