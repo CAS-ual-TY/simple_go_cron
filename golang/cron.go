@@ -10,7 +10,7 @@ import (
 type CronEntry interface {
 	Matches(value int) bool
 	GetStart() int
-	string() string
+	String() string
 }
 
 type CronEntryUniversal struct{}
@@ -23,7 +23,7 @@ func (c *CronEntryUniversal) Matches(value int) bool {
 	return true
 }
 
-func (c *CronEntryUniversal) string() string {
+func (c *CronEntryUniversal) String() string {
 	return "*"
 }
 
@@ -39,8 +39,8 @@ func (c *CronEntryValue) GetStart() int {
 	return c.Value
 }
 
-func (c *CronEntryValue) string() string {
-	return string(rune(c.Value))
+func (c *CronEntryValue) String() string {
+	return strconv.Itoa(c.Value)
 }
 
 type CronEntryRange struct {
@@ -56,8 +56,8 @@ func (c *CronEntryRange) GetStart() int {
 	return c.Start
 }
 
-func (c *CronEntryRange) string() string {
-	return string(rune(c.Start)) + "-" + string(rune(c.End))
+func (c *CronEntryRange) String() string {
+	return strconv.Itoa(c.Start) + "-" + strconv.Itoa(c.End)
 }
 
 type CronEntryStep struct {
@@ -73,8 +73,8 @@ func (c *CronEntryStep) GetStart() int {
 	return c.Entry.GetStart()
 }
 
-func (c *CronEntryStep) string() string {
-	return c.Entry.string() + "/" + string(rune(c.Step))
+func (c *CronEntryStep) String() string {
+	return c.Entry.String() + "/" + strconv.Itoa(c.Step)
 }
 
 type CronEntries struct {
@@ -90,13 +90,13 @@ func (c *CronEntries) Matches(value int) bool {
 	return false
 }
 
-func (c *CronEntries) string() string {
+func (c *CronEntries) String() string {
 	s := ""
 	for i, v := range c.Entries {
 		if i > 0 {
 			s += ","
 		}
-		s += v.string()
+		s += v.String()
 	}
 	return s
 }
@@ -124,12 +124,12 @@ func (c *Cron) TimeMatches(t time.Time) bool {
 }
 
 func (c *Cron) String() string {
-	return c.Seconds.string() + " " +
-		c.Minutes.string() + " " +
-		c.Hours.string() + " " +
-		c.Days.string() + " " +
-		c.Months.string() + " " +
-		c.Weekdays.string()
+	return c.Seconds.String() + " " +
+		c.Minutes.String() + " " +
+		c.Hours.String() + " " +
+		c.Days.String() + " " +
+		c.Months.String() + " " +
+		c.Weekdays.String()
 }
 
 type ErrInvalidCronEntry struct {
@@ -199,9 +199,6 @@ func ParseCronEntries(s string) (CronEntries, error) {
 		}
 		cronEntries.Entries = append(cronEntries.Entries, entry)
 	}
-	for len(cronEntries.Entries) < 6 {
-		cronEntries.Entries = append(cronEntries.Entries, &CronEntryUniversal{})
-	}
 	return cronEntries, nil
 }
 
@@ -212,7 +209,7 @@ func ParseCron(s string) (*Cron, error) {
 		parts := strings.Split(s, " ")
 
 		if len(parts) > 6 {
-			return nil, fmt.Errorf("Invalid cron: %s", s)
+			return nil, fmt.Errorf("invalid cron: %s", s)
 		}
 
 		for _, part := range parts {

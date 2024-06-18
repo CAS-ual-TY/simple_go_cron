@@ -2,17 +2,22 @@ package simple_cron
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 )
 
 func test(expected bool, cronS string, time time.Time, t *testing.T) {
 	cron, e := ParseCron(cronS)
+	if !strings.HasPrefix(cron.String(), cronS) {
+		t.Errorf("Full cron String %s does not contain prefix %s", cron.String(), cronS)
+	}
 	if e != nil {
 		t.Errorf("Assertion is false! %s =/= %s with error: %s", cronS, time.Format("2006-01-02 15:04:05"), e.Error())
 	}
-	if !(cron.TimeMatches(time) == expected) {
-		t.Errorf("Assertion is false! %s =/= %s", cronS, time.Format("2006-01-02 15:04:05"))
+	match := cron.TimeMatches(time)
+	if !(match == expected) {
+		t.Errorf("Time matches: %t but expected %t for cron %s and time %s", match, expected, cronS, time.Format("2006-01-02 15:04:05"))
 	}
 }
 
@@ -33,4 +38,5 @@ func TestOther(t *testing.T) {
 	test(true, "29-30", date, t)
 	test(true, "30-31", date, t)
 	test(true, "10,30-31,20", date, t)
+	test(false, "10,20 *", date, t)
 }
