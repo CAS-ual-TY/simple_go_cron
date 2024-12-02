@@ -1,4 +1,4 @@
-package simple_cron
+package simple_go_cron
 
 import (
 	"fmt"
